@@ -1,29 +1,49 @@
 # Untrusted Page Reader
 
-A small teaching demo. Paste a URL or an HTML snippet along with your own notes. The app wraps the page text in clearly labeled **OUTSIDE / UNTRUSTED** fences and keeps your notes in a separate **YOUR NOTES** section. The result is a prompt where an LLM is told to treat page content as data, not instructions.
-
 Built by [Trevor Heshka](https://trevorheshka.com).
 
-## Run locally
+A small teaching demo that keeps **your notes** (green, trusted) apart from **outside page text** (orange, untrusted) so an LLM prompt treats the page as data, not instructions.
+
+![Marked injection sample](docs/screenshot-marked.png)
+
+## Prerequisites
+
+- [Node.js](https://nodejs.org) 18 or newer
+- A modern browser
+- No `npm install`. There are no dependencies.
+
+## Install and run
 
 ```bash
-node server.js        # Node 18+, no dependencies
-# open http://localhost:3000
+git clone https://github.com/YardPhantom/untrusted-page-reader.git
+cd untrusted-page-reader
+node server.js
 ```
 
-The server is only needed for the URL fetch (`/fetch?url=`). Pasting HTML works client-side, even if you open `public/index.html` directly.
+Then open <http://localhost:3000>.
+
+The server is only needed for URL fetches (`/fetch?url=`). Pasting HTML works without it: open `public/index.html` directly.
+
+## Try it
+
+1. Click **Load injection sample** (or paste the contents of a file from `fixtures/`).
+   - `fixtures/benign.html`: a normal page
+   - `fixtures/injection.html`: a page with hidden prompt-injection text
+2. Edit **Your notes** if you want.
+3. Click **Mark it**. Suspicious lines are highlighted in red. The combined prompt appears below.
+4. Click **Copy** and paste the prompt into the LLM of your choice.
+
+Empty state:
+
+![Empty state](docs/screenshot-empty.png)
 
 ## How it works
 
 1. The HTML is parsed with `DOMParser`. Scripts, styles, and comments are dropped, and the visible text is extracted.
 2. Lines that look like instructions ("ignore previous", "you are now", "system:") are flagged.
-3. Any fence-like markers in the page text are neutralized, so the page can't close its own fence.
-4. A combined prompt is built: your notes, a policy line, then the fenced untrusted text.
-
-`fixtures/` contains sample pages, including a prompt-injection example.
-
-This is a teaching toy, not a security boundary.
+3. Fence-like markers in the page text are neutralized so the page can't close its own fence.
+4. The prompt is built in this order: your notes, a policy line, then the fenced untrusted text.
 
 ## License
 
-MIT
+MIT. This is a teaching toy, **not a security boundary**.
